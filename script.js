@@ -1,3 +1,5 @@
+var socket = io();
+
 
 $(function() {
     $("#send").click(()=>{
@@ -6,6 +8,10 @@ $(function() {
     })
     getMessages();
 });
+
+
+socket.on("message", addMessages)
+
 
 function addMessages(message) {
     $("#messages").append(`<h3>${message.name}</h3> <p>${message.message}</p>`)
