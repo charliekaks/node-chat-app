@@ -4,6 +4,7 @@ var app = express()
 var http = require("http").Server(app)
 var io = require("socket.io")(http)
 var mongoose = require("mongoose")
+mongoose.Promise = Promise
 
 
 dbUrl = "mongodb://user:password123@ds125241.mlab.com:25241/node-chat-app";
@@ -26,16 +27,25 @@ app.get("/messages", (req, res) =>{
     
 })
 
-app.post("/messages", (req, res) =>{
-    var message = new Message(req.body)
-    message.save((err)=>{
-        if(err){
-            sendStatus(500)
-        }
-        res.sendStatus(200)
-        io.emit("message", req.body)
-        messages.push(req.body)
-    })
+app.post("/messages", async (req, res) =>{
+    
+    try {
+        var message = new Message(req.body)
+        var savedMessage = await  message.save()
+
+        var censored = await Message.findOne({message: "badword"})
+            if (censored) {
+                await Message.remove({_id: censored_id})
+            }else {
+                io.emit("message", req.body);
+            }
+            
+            res.sendStatus(200);
+
+    } catch (error) {
+        res.sendStatus(500)
+        return console.error(error)
+    }
     
 })
 
